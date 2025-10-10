@@ -49,11 +49,11 @@ HERB_NN_HIDDEN_SIZE = 6                 # Number of hidden neurons
 HERB_VISION_CONE_LENGTH = 120           # Length of vision cones, in units
 HERB_VISION_CONE_WIDTH = math.pi/5      # Width of vision cones, in radians
 HERB_METABOLISM = 0.035                 # Energy units lost per tick
-HERB_METABOLISM_SPEED_ADD_INV = 160     # Amount of additional energy units lost per tick when moving (as a divisor)
-HERB_METABOLISM_ROTATE_ADD_INV = 240    # Amount of additional energy units lost per tick when rotating (as a divisor)
+HERB_METABOLISM_SPEED_ADD_INV = 160     # Additional energy units lost per tick when moving (as a divisor)
+HERB_METABOLISM_ROTATE_ADD_INV = 240    # Additional energy units lost per tick when rotating (as a divisor)
 HERB_ROTATE_THRESHOLD = 0.3             # Minimum a neuron has to be set to to rotate an organism
 HERB_SPEED_THRESHOLD = 0.1              # Minimum a neuron has to be set to cause an organism to move
-HERB_ROTATE_MUL = 1.4                   # degrees per frame an organism rotates, multiplied by their rotate neuron strength
+HERB_ROTATE_MUL = 1.4                   # Degrees per frame an organism rotates, multiplied by their rotate neuron strength
 HERB_SPEED_MUL = 2.8                    # Units per frame an organism moves when moving foward, multiplied by their speed neuron strength
 HERB_SPEED_MUL_REV = 1.2                # Units per frame an organism moves when moving backward, multiplied by their speed neuron strength
 HERB_ENERGY_GAIN = 20                   # Energy units to gain when eating a plant
@@ -208,8 +208,10 @@ class Herbivore:
 
         if parent:
             self.energy = random.uniform(HERB_ENERGY_START_MIN, HERB_ENERGY_START_MAX)
+            self.generation = parent.generation + 1
         else:
             self.energy = HERB_BORN_ENERGY
+            self.generation = 1
             
         self.alive = True
 
@@ -384,8 +386,10 @@ class Carnivore:
 
         if parent:
             self.energy = random.uniform(CARN_ENERGY_START_MIN, CARN_ENERGY_START_MAX)
+            self.generation = parent.generation + 1
         else: 
             self.energy = CARN_BORN_ENERGY
+            self.generation = 1
         
         self.alive = True
 
@@ -708,7 +712,7 @@ class EvolutionSimulator:
             self.draw_nn(organism.nn, inputs=inputs)
 
         info_text = (
-            f"{'Herbivore' if isinstance(organism, Herbivore) else 'Carnivore'} #{organism.id}\n"
+            f"{'Herbivore' if isinstance(organism, Herbivore) else 'Carnivore'} #{organism.id} (Generation {organism.generation})\n"
             f"Color: {organism.color}\n"
             f"Pos: ({int(organism.x)}, {int(organism.y)})\n"
             f"Rotation: {round(rot_deg, 1)}°\n"
