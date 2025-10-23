@@ -39,4 +39,5 @@
 
 ### Install
 1. Download EvolutionSimulatorOfVision.py
-2. Run `python EvolutionSimulatorOfVision.py`
+2. [Install Matplotlib](https://matplotlib.org/stable/install/index.html) if you haven't already
+3. Run `python EvolutionSimulatorOfVision.py`
