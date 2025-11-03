@@ -23,7 +23,6 @@
   - Add gestation periods
   - Make carnivores' energy gain depend on how much energy the herbivore being eaten has remaining
   - Allow herbivores to see other herbivores and carnivores to see plants and other carnivores
-  - Organisms die of old age?
   - Omnivore?
 - **Data**
   - Automatically download info from all graphs once a simulation is over

@@ -62,6 +62,8 @@ HERB_REPRODUCTION_RETURN = 70           # Energy units to return to after reprod
 HERB_BORN_ENERGY = 70                   # Energy units new organisms start with
 HERB_ENERGY_START_MIN = 40              # Minimum energy units organisms start with on simulation start
 HERB_ENERGY_START_MAX = 80              # Maximum energy units organisms start with on simulation start
+HERB_LIFESPAN_MIN = 4000                # Minimum ticks to live for
+HERB_LIFESPAN_MAX = 8000                # Maximum ticks to live for
 
 # CARNIVORE VARIABLES
 CARN_START_COLOR_R_0 = 192
@@ -89,6 +91,8 @@ CARN_REPRODUCTION_RETURN = 120          # Energy units to return to after reprod
 CARN_BORN_ENERGY = 120                  # Energy units new organisms start with
 CARN_ENERGY_START_MIN = 70              # Minimum energy units organisms start with on simulation start
 CARN_ENERGY_START_MAX = 140             # Maximum energy units organisms start with on simulation start
+CARN_LIFESPAN_MIN = 7000                # Minimum ticks to live for
+CARN_LIFESPAN_MAX = 9000                # Maximum ticks to live for
 
 
 # ----------------------
@@ -215,6 +219,9 @@ class Herbivore:
             
         self.alive = True
 
+        self.age = 0
+        self.lifespan = random.randint(HERB_LIFESPAN_MIN, HERB_LIFESPAN_MAX)
+
         input_size = 4 # R, G, B, Energy
         if parent:
             self.nn = NeuralNetwork(input_size, HERB_NN_HIDDEN_SIZE, 2,
@@ -267,6 +274,12 @@ class Herbivore:
 
     def update(self, canvas, herbivores, plants, carnivores, field_w, field_h, plant_grid, carn_grid):
         if not self.alive:
+            return
+        
+        # Age
+        self.age += 1
+        if self.age >= self.lifespan:
+            self.die(canvas, cause="old_age")
             return
 
         # Metabolism
@@ -393,6 +406,9 @@ class Carnivore:
         
         self.alive = True
 
+        self.age = 0
+        self.lifespan = random.randint(CARN_LIFESPAN_MIN, CARN_LIFESPAN_MAX)
+
         input_size = 4 # R, G, B, Energy
         if parent:
             self.nn = NeuralNetwork(input_size, CARN_NN_HIDDEN_SIZE, 2,
@@ -438,6 +454,12 @@ class Carnivore:
 
     def update(self, canvas, herbivores, carnivores, field_w, field_h, herb_grid, carn_grid):
         if not self.alive:
+            return
+
+        # Age
+        self.age += 1
+        if self.age >= self.lifespan:
+            self.die(canvas)
             return
 
         # Metabolism
@@ -718,6 +740,7 @@ class EvolutionSimulator:
             f"Rotation: {round(rot_deg, 1)}°\n"
             f"Speed: {round(organism.speed, 2)}\n"
             f"Energy: {round(organism.energy, 1)}\n"
+            f"Age: {organism.age}/{organism.lifespan}\n"
         )
 
         self.info_label.config(text=info_text)
