@@ -38,8 +38,10 @@ class EvolutionSimulator:
         # Graph
         self.tick_count = 0
         self.sim_data = []
-        self.fig = Figure(figsize=(3.5, 2.2), dpi=100)
-        self.ax = self.fig.add_subplot(111)
+        self.fig = Figure(figsize=(3.5, 4.4), dpi=100)
+
+        # Population graph (1)
+        self.ax = self.fig.add_subplot(211)
         self.ax.set_title("Population")
         self.ax.set_xlabel("Ticks")
         self.ax.set_ylabel("Count")
@@ -47,6 +49,19 @@ class EvolutionSimulator:
         self.line_herbs, = self.ax.plot([], [], label="Herbivores", color="blue")
         self.line_carns, = self.ax.plot([], [], label="Carnivores", color="red")
         self.ax.legend(loc="upper left", fontsize=8)
+
+        # Death cause graph (2)
+        self.ax2 = self.fig.add_subplot(212)
+        self.ax2.set_title("Herbivore Death Causes (%)")
+        self.ax2.set_xlabel("Ticks")
+        self.ax2.set_ylabel("Percent of Deaths")
+        self.line_starve, = self.ax2.plot([], [], label="Starvation", color="green")
+        self.line_eaten, = self.ax2.plot([], [], label="Eaten", color="red")
+        self.line_oldage, = self.ax2.plot([], [], label="Old Age", color="blue")
+        self.ax2.set_ylim(0, 100)
+        self.ax2.legend(loc="upper left", fontsize=8)
+
+        self.fig.subplots_adjust(hspace=1.0)
 
         self.canvas_graph = FigureCanvasTkAgg(self.fig, master=self.left_panel)
         self.canvas_graph.get_tk_widget().pack(pady=10)
@@ -306,13 +321,15 @@ class EvolutionSimulator:
 
         herb_starve_deaths = sum(1 for h in self.herbivores if not h.alive and getattr(h, "death_cause", "") == "starvation")
         herb_eaten_deaths = sum(1 for h in self.herbivores if not h.alive and getattr(h, "death_cause", "") == "eaten")
+        herb_oldage_deaths = sum(1 for h in self.herbivores if not h.alive and getattr(h, "death_cause", "") == "old_age")
 
         self.sim_data.append([
             total_plants,
             total_herbs,
             total_carns,
             herb_starve_deaths,
-            herb_eaten_deaths
+            herb_eaten_deaths,
+            herb_oldage_deaths,
         ])
 
         if len(self.sim_data) > SYS_GRAPH_MEMORY:
@@ -330,17 +347,48 @@ class EvolutionSimulator:
         plants = [v / 10 for v in data[0]]
         herbs = list(data[1])
         carns = list(data[2])
-        starve_deaths = list(data[3]) # todo
+        starve_deaths = list(data[3])
         eaten_deaths = list(data[4])
+        oldage_deaths = list(data[5])
 
+        # Population graph (1)
         self.line_plants.set_data(ticks, plants)
         self.line_herbs.set_data(ticks, herbs)
         self.line_carns.set_data(ticks, carns)
-
         self.ax.set_xlim(0, len(self.sim_data))
         ymax = max(max(plants + herbs + carns), 1) + 5
         self.ax.set_ylim(0, ymax)
 
+        # Death cause graph (2)
+        recent_window = 100
+
+        perc_starve = []
+        perc_eaten = []
+        perc_oldage = []
+
+        for i in range(len(starve_deaths)):
+            start = max(0, i - recent_window)
+            s_sum = sum(starve_deaths[start:i+1])
+            e_sum = sum(eaten_deaths[start:i+1])
+            o_sum = sum(oldage_deaths[start:i+1])
+            total = s_sum + e_sum + o_sum
+
+            if total > 0:
+                perc_starve.append(s_sum / total * 100)
+                perc_eaten.append(e_sum / total * 100)
+                perc_oldage.append(o_sum / total * 100)
+            else:
+                perc_starve.append(0)
+                perc_eaten.append(0)
+                perc_oldage.append(0)
+
+        self.line_starve.set_data(ticks, perc_starve)
+        self.line_eaten.set_data(ticks, perc_eaten)
+        self.line_oldage.set_data(ticks, perc_oldage)
+        self.ax2.set_xlim(0, len(self.sim_data))
+        self.ax2.set_ylim(0, 100)
+
+        # Draw graphs
         self.canvas_graph.draw()
 
     # ------------------ Main Loop ------------------
@@ -468,7 +516,8 @@ class EvolutionSimulator:
         if not any(h.alive for h in self.herbivores) or not any(c.alive for c in self.carnivores) or len(self.plants) == 0:
             return
         else:
-            self.update_graphs()
+            if self.tick_count % 1 == 0:
+                self.update_graphs()
 
         # Next frame
         self.root.after(int(100 / self.sim_speed), self.update_loop)

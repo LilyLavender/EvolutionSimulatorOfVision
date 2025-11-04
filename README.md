@@ -24,7 +24,6 @@
   - Omnivore?
 - **Data**
   - Automatically download info from all graphs once a simulation is over
-  - Graph to show herbivore causes of death (herbivores already track this, needs to be put into a graph)
   - Graph to show average color of plants, herbivores, or carnivores over time
   - Display the number of children an organism has
   - Option to automatically spectate another organism once one dies

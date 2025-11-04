@@ -82,13 +82,13 @@ class Organism:
         # Die of old age
         self.age += 1
         if self.age >= self.lifespan:
-            self.die(canvas)
+            self.die(canvas, cause="old_age")
             return
 
         # Die when energy runs out
         self.energy -= self.metabolism
         if self.energy <= 0:
-            self.die(canvas)
+            self.die(canvas, cause="starvation")
             return
 
         # Gestation
@@ -152,7 +152,7 @@ class Organism:
         x2, y2 = self.x + math.cos(right_angle) * self.vision_length, self.y + math.sin(right_angle) * self.vision_length
         canvas.coords(self.vision_poly, self.x, self.y, x1, y1, x2, y2)
 
-    def die(self, canvas, cause="starvation"):
+    def die(self, canvas, cause="unknown"):
         self.alive = False
         self.death_cause = cause
         canvas.delete(self.shape)
