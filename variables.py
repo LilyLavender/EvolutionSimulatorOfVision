@@ -4,9 +4,9 @@ import math
 SYS_FIELD_WIDTH = 2400
 SYS_FIELD_HEIGHT = 2400
 SYS_CELL_SIZE = 200         # The field is divided into cells to save processing power. This is the size of individual cells. Should be at least the vision lengths of carnivores. More cells (smaller cell size) is most efficient
-SYS_START_PLANT_NUM = 3000
+SYS_START_PLANT_NUM = 2000
 SYS_START_HERB_NUM = 100
-SYS_START_CARN_NUM = 30
+SYS_START_CARN_NUM = 40
 SYS_GRAPH_MEMORY = 100000   # Amount of ticks visible on the graph
 SYS_SPEED_LEVELS = [0, 1, 2, 4, 8, 16, 32]
 
@@ -21,13 +21,13 @@ PLANT_START_COLOR_G_1 = 255
 PLANT_START_COLOR_B_0 = 0
 PLANT_START_COLOR_B_1 = 0
 PLANT_COLOR_MUTATE_RAND = 16            # Amount (in decimal) an organism's color components are allowed to fluctuate per generation
-PLANT_SPREAD_MIN = 18                   # Shortest distance between any two plants
-PLANT_SPREAD_MAX = 30                   # Largest distance a child plant can spawn
-PLANT_SPREAD_TRY_NUM = 2                # Amount of spawning positions children plants attempt
+PLANT_SPREAD_MIN = 20                   # Shortest distance between any two plants
+PLANT_SPREAD_MAX = 32                   # Largest distance a child plant can spawn
+PLANT_SPREAD_TRY_NUM = 1                # Amount of spawning positions children plants attempt
 PLANT_REPRODUCTION_FRAME_MIN = 300
 PLANT_REPRODUCTION_FRAME_MAX = 1200
-PLANT_REPRODUCTION_START_FRAME_MIN = 0
-PLANT_REPRODUCTION_START_FRAME_MAX = 800
+PLANT_REPRODUCTION_START_FRAME_MIN = 600
+PLANT_REPRODUCTION_START_FRAME_MAX = 1800
 
 # HERBIVORE VARIABLES
 HERB_START_COLOR_R_0 = 0
@@ -79,7 +79,7 @@ CARN_SPEED_THRESHOLD = 0.2              # Minimum a neuron has to be set to caus
 CARN_ROTATE_MUL = 2.4                   # Degrees per frame an organism rotates, multiplied by their rotate neuron strength
 CARN_SPEED_MUL = 3.8                    # Units per frame an organism moves when moving foward, multiplied by their speed neuron strength
 CARN_SPEED_MUL_REV = 1.8                # Units per frame an organism moves when moving backward, multiplied by their speed neuron strength
-CARN_ENERGY_GAIN = 30                   # Energy units to gain when eating a herbivore
+CARN_ENERGY_GAIN_PERCENT = 0.275        # Percentage of an herbivore's energy carnivores gain upon eating
 CARN_REPRODUCTION_THRESHOLD = 300       # Energy units required to reproduce
 CARN_REPRODUCTION_RETURN = 120          # Energy units to return to after reproduction (plus any excess)
 CARN_BORN_ENERGY = 120                  # Energy units new organisms start with

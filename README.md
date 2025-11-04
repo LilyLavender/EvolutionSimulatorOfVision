@@ -20,7 +20,6 @@
 - **Simulation**
   - Make organism size affected by evolution
   - Tie organism size to metabolism
-  - Make carnivores' energy gain depend on how much energy the herbivore being eaten has remaining
   - Allow herbivores to see other herbivores and carnivores to see plants and other carnivores
   - Omnivore?
 - **Data**

@@ -87,8 +87,9 @@ class Carnivore(Organism):
             dx, dy = prey.x - self.x, prey.y - self.y
             dist = dx * dx + dy * dy
             if dist < (self.radius + prey.radius / 1.2) ** 2: # divisor of 1 is a big hitbox, 2 is a small hitbox
+                gained_energy = prey.energy * CARN_ENERGY_GAIN_PERCENT
+                self.energy += gained_energy
                 prey.die(canvas, cause="eaten")
-                self.energy += CARN_ENERGY_GAIN
                 if self.energy > CARN_REPRODUCTION_THRESHOLD and not self.gestating:
                     self.energy -= (CARN_REPRODUCTION_THRESHOLD - CARN_REPRODUCTION_RETURN)
                     self.gestating = True
