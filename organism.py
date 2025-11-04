@@ -42,6 +42,9 @@ class Organism:
         self.alive = True
         self.age = 0
         self.lifespan = random.randint(*lifespan_range)
+        self.gestating = False
+        self.gestation_timer = 0
+        self.child_class = None
         self.energy = born_energy if parent else random.uniform(*energy_start)
         self.generation = parent.generation + 1 if parent else 1
 
@@ -76,15 +79,38 @@ class Organism:
         if not self.alive:
             return
 
+        # Die of old age
         self.age += 1
         if self.age >= self.lifespan:
             self.die(canvas)
             return
 
+        # Die when energy runs out
         self.energy -= self.metabolism
         if self.energy <= 0:
             self.die(canvas)
             return
+
+        # Gestation
+        if self.gestating:
+            self.gestation_timer -= 1
+            if self.gestation_timer <= 0:
+                # Give birth
+                self.gestating = False
+                self.gestation_timer = 0
+                if self.child_class:
+                    child = self.child_class(canvas,
+                                             self.x + random.randint(-20, 20),
+                                             self.y + random.randint(-20, 20),
+                                             parent=self)
+                    
+                    from herbivore import Herbivore
+                    from carnivore import Carnivore
+
+                    if isinstance(self, Herbivore):
+                        herbivores.append(child)
+                    elif isinstance(self, Carnivore):
+                        carnivores.append(child)
 
         # Brain
         inputs = self.get_inputs(plant_grid, herb_grid, carn_grid)

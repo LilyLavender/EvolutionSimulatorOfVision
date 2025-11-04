@@ -63,6 +63,11 @@ class Carnivore(Organism):
         return rgb + [energy_norm]
 
     def eat_targets(self, canvas, plant_grid, herb_grid, carn_grid, plants, herbivores, carnivores):
+        # Gestation
+        if self.gestating:
+            return
+        
+        # Calculate cells
         cell_x = int(self.x // SYS_CELL_SIZE)
         cell_y = int(self.y // SYS_CELL_SIZE)
 
@@ -84,10 +89,8 @@ class Carnivore(Organism):
             if dist < (self.radius + prey.radius / 1.2) ** 2: # divisor of 1 is a big hitbox, 2 is a small hitbox
                 prey.die(canvas, cause="eaten")
                 self.energy += CARN_ENERGY_GAIN
-                if self.energy > CARN_REPRODUCTION_THRESHOLD:
+                if self.energy > CARN_REPRODUCTION_THRESHOLD and not self.gestating:
                     self.energy -= (CARN_REPRODUCTION_THRESHOLD - CARN_REPRODUCTION_RETURN)
-                    child = Carnivore(canvas,
-                                      self.x + random.randint(-20, 20),
-                                      self.y + random.randint(-20, 20),
-                                      parent=self)
-                    carnivores.append(child)
+                    self.gestating = True
+                    self.gestation_timer = CARN_GESTATION_PERIOD
+                    self.child_class = Carnivore

@@ -71,6 +71,11 @@ class Herbivore(Organism):
         return rgb + [energy_norm]
 
     def eat_targets(self, canvas, plant_grid, herb_grid, carn_grid, plants, herbivores, carnivores):
+        # Gestation
+        if self.gestating:
+            return
+
+        # Calculate cells
         cell_x = int(self.x // SYS_CELL_SIZE)
         cell_y = int(self.y // SYS_CELL_SIZE)
 
@@ -89,13 +94,11 @@ class Herbivore(Organism):
             dist = dx * dx + dy * dy
             if dist < (self.radius + plant.size / 2) ** 2:
                 self.energy += HERB_ENERGY_GAIN
-                if self.energy > HERB_REPRODUCTION_THRESHOLD:
+                if self.energy > HERB_REPRODUCTION_THRESHOLD and not self.gestating:
                     self.energy -= (HERB_REPRODUCTION_THRESHOLD - HERB_REPRODUCTION_RETURN)
-                    child = Herbivore(canvas,
-                                      self.x + random.randint(-20, 20),
-                                      self.y + random.randint(-20, 20),
-                                      parent=self)
-                    herbivores.append(child)
+                    self.gestating = True
+                    self.gestation_timer = HERB_GESTATION_PERIOD
+                    self.child_class = Herbivore
 
                 if plant in plants:
                     plant.remove(canvas)
