@@ -156,20 +156,34 @@ class EvolutionSimulator:
     def on_click(self, event):
         wx = (event.x / self.scale) + self.camera_x
         wy = (event.y / self.scale) + self.camera_y
+
+        nearest = None
+        nearest_dist_sq = float('inf')
+        max_click_dist = SYS_MAX_CLICK_DIST / self.scale
+
+        # Get all organisms
         for herb in self.herbivores:
             if herb.alive:
                 dx = wx - herb.x
                 dy = wy - herb.y
-                if dx*dx + dy*dy <= herb.radius*herb.radius:
-                    self.selected_organism = herb
-                    break
+                dist_sq = dx*dx + dy*dy
+                if dist_sq <= (herb.radius + max_click_dist)**2 and dist_sq < nearest_dist_sq:
+                    nearest = herb
+                    nearest_dist_sq = dist_sq
         for carn in self.carnivores:
             if carn.alive:
                 dx = wx - carn.x
                 dy = wy - carn.y
-                if dx*dx + dy*dy <= carn.radius*carn.radius:
-                    self.selected_organism = carn
-                    break
+                dist_sq = dx*dx + dy*dy
+                if dist_sq <= (carn.radius + max_click_dist)**2 and dist_sq < nearest_dist_sq:
+                    nearest = carn
+                    nearest_dist_sq = dist_sq
+
+        # Assign selection
+        if nearest is not None:
+            self.selected_organism = nearest
+        else:
+            self.selected_organism = None
 
     def display_info(self, organism):
         rot_deg = math.degrees(organism.rotation) % 360
@@ -399,6 +413,10 @@ class EvolutionSimulator:
 
                 # Update vision cone
                 self.canvas.coords(herb.vision_poly, x, y, x1, y1, x2, y2)
+
+                # Darker when spectated
+                stipple = "gray75" if herb is self.selected_organism else "gray25"
+                self.canvas.itemconfig(herb.vision_poly, stipple=stipple)
             else:
                 self.canvas.itemconfig(herb.shape, state='hidden')
                 self.canvas.itemconfig(herb.facing_line, state='hidden')
@@ -431,6 +449,10 @@ class EvolutionSimulator:
 
                 # Update vision cone
                 self.canvas.coords(carn.vision_poly, x, y, x1, y1, x2, y2)
+
+                # Darker when spectated
+                stipple = "gray75" if carn is self.selected_organism else "gray25"
+                self.canvas.itemconfig(carn.vision_poly, stipple=stipple)
             else:
                 self.canvas.itemconfig(carn.shape, state='hidden')
                 self.canvas.itemconfig(carn.facing_line, state='hidden')

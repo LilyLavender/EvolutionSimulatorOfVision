@@ -27,7 +27,6 @@
   - Graph to show herbivore causes of death (herbivores already track this, needs to be put into a graph)
   - Graph to show average color of plants, herbivores, or carnivores over time
   - Display the number of children an organism has
-  - Add a way to see which organism is being spectated (only organism to show vision cone?)
   - Option to automatically spectate another organism once one dies
 - **Bugs**
   - Zooming the field currently zooms relative to the top left rather than where the mouse is
