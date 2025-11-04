@@ -11,7 +11,7 @@
 - **This evolution simulator was made specifically to test vision and camouflage**
   - Since organisms' colors can slowly drift over the course of many generations and organisms can only see which color is closest in their vision cone, this simulation lends itself well to the fittest organisms being the ones that happen to evolve colors different than those around them
 - **This sim also has many variables for the end user to change**
-  - At the top of `EvolutionSimulatorOfVision.py`, you'll find a list of uppercase variables
+  - In the `variables.py` file, you'll find a list of uppercase variables
   - These decide many different values from the rate of mutations to organisms' max speed
   - They are by default set to values I've found prolong the simulation as long as possible
   - Feel free to change them to customize the simulation to your liking
@@ -34,9 +34,11 @@
 - **Bugs**
   - Zooming the field currently zooms relative to the top left rather than where the mouse is
   - Plants display above some carnivores. Vision cone z-indexes are also possibly messed up
-  - Herbivores & carnivores have unused parameters in their `get_inputs()` and `update()` functions
 
 ### Install
-1. Download EvolutionSimulatorOfVision.py
-2. [Install Matplotlib](https://matplotlib.org/stable/install/index.html) if you haven't already
+1. Download the repository's code
+    - Click the green (or blue) `<> Code` button
+    - Click `Download ZIP`
+    - Unzip the folder into the desired location
+2. [Install Matplotlib](https://matplotlib.org/stable/install/index.html) via the command line if you haven't already
 3. Run `python EvolutionSimulatorOfVision.py`
