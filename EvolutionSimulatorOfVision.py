@@ -52,11 +52,11 @@ class EvolutionSimulator:
 
         # Death cause graph (2)
         self.ax2 = self.fig.add_subplot(212)
-        self.ax2.set_title("Herbivore Death Causes (%)")
+        self.ax2.set_title("Herbivore Cause of Death (%)")
         self.ax2.set_xlabel("Ticks")
         self.ax2.set_ylabel("Percent of Deaths")
         self.line_starve, = self.ax2.plot([], [], label="Starvation", color="green")
-        self.line_eaten, = self.ax2.plot([], [], label="Eaten", color="red")
+        self.line_eaten, = self.ax2.plot([], [], label="Predation", color="red")
         self.line_oldage, = self.ax2.plot([], [], label="Old Age", color="blue")
         self.ax2.set_ylim(0, 100)
         self.ax2.legend(loc="upper left", fontsize=8)
@@ -360,7 +360,7 @@ class EvolutionSimulator:
         self.ax.set_ylim(0, ymax)
 
         # Death cause graph (2)
-        recent_window = 100
+        recent_window = SYS_DEATH_WINDOW_SIZE
 
         perc_starve = []
         perc_eaten = []

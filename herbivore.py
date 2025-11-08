@@ -50,10 +50,11 @@ class Herbivore(Organism):
                 nearby_plants.extend(plant_grid.get(cell, []))
         if carn_grid:
             for cell in neighbor_cells:
-                nearby_carns.extend(carn_grid.get(cell, []))
+                nearby_carns.extend([c for c in carn_grid.get(cell, []) if c.alive])
 
-        for obj in nearby_plants + [c for c in nearby_carns if c.alive]:
-            dx, dy = obj.x - self.x, obj.y - self.y
+        # Carnivores
+        for carn in nearby_carns:
+            dx, dy = carn.x - self.x, carn.y - self.y
             dist2 = dx*dx + dy*dy
             if dist2 < HERB_VISION_CONE_LENGTH**2:
                 angle_to = math.atan2(dy, dx)
@@ -61,11 +62,21 @@ class Herbivore(Organism):
                 if abs(diff) < HERB_VISION_CONE_WIDTH:
                     if dist2 < min_dist2:
                         min_dist2 = dist2
-                        if isinstance(obj, Plant):
-                            rgb = [c / 255 for c in obj.color]
-                        else:
-                            r, g, b = int(obj.color[1:3], 16), int(obj.color[3:5], 16), int(obj.color[5:7], 16)
-                            rgb = [r/255, g/255, b/255]
+                        r, g, b = int(carn.color[1:3], 16), int(carn.color[3:5], 16), int(carn.color[5:7], 16)
+                        rgb = [r/255, g/255, b/255]
+
+        # Plants
+        if min_dist2 == float('inf'):
+            for plant in nearby_plants:
+                dx, dy = plant.x - self.x, plant.y - self.y
+                dist2 = dx*dx + dy*dy
+                if dist2 < HERB_VISION_CONE_LENGTH**2:
+                    angle_to = math.atan2(dy, dx)
+                    diff = (angle_to - self.rotation + math.pi) % (2*math.pi) - math.pi
+                    if abs(diff) < HERB_VISION_CONE_WIDTH:
+                        if dist2 < min_dist2:
+                            min_dist2 = dist2
+                            rgb = [c / 255 for c in plant.color]
 
         energy_norm = max(0.0, min(self.energy / HERB_REPRODUCTION_THRESHOLD, 1.0))
         return rgb + [energy_norm]

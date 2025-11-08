@@ -7,7 +7,7 @@ from variables import *
 class Plant:
     _id_counter = 1
 
-    def __init__(self, canvas, x, y, size=10):
+    def __init__(self, canvas, x, y, size=PLANT_SIZE):
         self.id = Plant._id_counter
         Plant._id_counter += 1
         self.x, self.y, self.size = x, y, size
@@ -18,7 +18,7 @@ class Plant:
         )
         hex_color = f'#{self.color[0]:02x}{self.color[1]:02x}{self.color[2]:02x}'
         self.shape = canvas.create_rectangle(
-            x - size//2, y - size//2, x + size//2, y + size//2,
+            x - self.size//2, y - self.size//2, x + self.size//2, y + self.size//2,
             fill=hex_color, outline=""
         )
         self.duplication_timer = random.randint(PLANT_REPRODUCTION_START_FRAME_MIN, PLANT_REPRODUCTION_START_FRAME_MAX)
@@ -29,7 +29,8 @@ class Plant:
     def try_duplicate(self, canvas, plants, world_w, world_h):
         self.duplication_timer -= 1
         if self.duplication_timer <= 0:
-            self.duplication_timer = random.randint(PLANT_REPRODUCTION_FRAME_MIN, PLANT_REPRODUCTION_FRAME_MAX)
+            duplication_timer_mul = 16 * math.exp(-0.000770689 * len(plants))
+            self.duplication_timer = random.randint(PLANT_REPRODUCTION_FRAME_MIN, PLANT_REPRODUCTION_FRAME_MAX) / duplication_timer_mul
 
             for _ in range(PLANT_SPREAD_TRY_NUM):
                 new_x = (self.x + random.randint(-PLANT_SPREAD_MAX, PLANT_SPREAD_MAX)) % world_w
@@ -50,6 +51,7 @@ class Plant:
 
                     child = Plant(canvas, new_x, new_y, self.size)
                     child.color = (r, g, b)
+                    child.duplication_timer = self.duplication_timer
                     canvas.itemconfig(child.shape, fill=f'#{r:02x}{g:02x}{b:02x}')
                     plants.append(child)
                     return # Successfully reproduced
