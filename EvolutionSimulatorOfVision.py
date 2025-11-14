@@ -38,10 +38,10 @@ class EvolutionSimulator:
         # Graph
         self.tick_count = 0
         self.sim_data = []
-        self.fig = Figure(figsize=(3.5, 4.4), dpi=100)
+        self.fig = Figure(figsize=(3.0, 6.5), dpi=100)
 
         # Population graph (1)
-        self.ax = self.fig.add_subplot(211)
+        self.ax = self.fig.add_subplot(311)
         self.ax.set_title("Population")
         self.ax.set_xlabel("Ticks")
         self.ax.set_ylabel("Count")
@@ -51,7 +51,7 @@ class EvolutionSimulator:
         self.ax.legend(loc="upper left", fontsize=8)
 
         # Death cause graph (2)
-        self.ax2 = self.fig.add_subplot(212)
+        self.ax2 = self.fig.add_subplot(312)
         self.ax2.set_title("Herbivore Cause of Death (%)")
         self.ax2.set_xlabel("Ticks")
         self.ax2.set_ylabel("Percent of Deaths")
@@ -61,7 +61,15 @@ class EvolutionSimulator:
         self.ax2.set_ylim(0, 100)
         self.ax2.legend(loc="upper left", fontsize=8)
 
-        self.fig.subplots_adjust(hspace=1.0)
+        # Predator-prey phase plot (3)
+        self.ax3 = self.fig.add_subplot(313)
+        self.ax3.set_title("Predator–Prey Cycle")
+        self.ax3.set_xlabel("Carnivores")
+        self.ax3.set_ylabel("Herbivores")
+        self.phase_line, = self.ax3.plot([], [], color="black", linewidth=0.75)
+        self.ax3.grid(True, linestyle="--", alpha=0.5)
+        
+        self.fig.subplots_adjust(hspace=0.75)
 
         self.canvas_graph = FigureCanvasTkAgg(self.fig, master=self.left_panel)
         self.canvas_graph.get_tk_widget().pack(pady=10)
@@ -75,11 +83,15 @@ class EvolutionSimulator:
         self.right_panel = tk.Frame(self.frame, width=400, bg="#eee")
         self.right_panel.pack(side="right", fill="y")
 
-        self.info_label = tk.Label(self.right_panel, text="Select an organism", bg="#eee", justify="left", font=("Arial", 10))
-        self.info_label.pack(pady=10)
+        # Info box
+        self.info_box = tk.Text(self.right_panel, width=40, height=7, bg="#eee", relief="flat", font=("Arial", 10))
+        self.info_box.tag_configure("bold", font=("Arial", 10, "bold"))
+        self.info_box.pack(pady=10)
+        self.info_box.insert("end", "Select an organism")
+        self.info_box.config(state="disabled")
 
         # Neural network view
-        self.nn_canvas = tk.Canvas(self.right_panel, width=380, height=280, bg="white")
+        self.nn_canvas = tk.Canvas(self.right_panel, width=360, height=420, bg="white")
         self.nn_canvas.pack(pady=10)
 
         # State
@@ -204,13 +216,7 @@ class EvolutionSimulator:
         rot_deg = math.degrees(organism.rotation) % 360
 
         inputs = None
-        if isinstance(organism, Herbivore):
-            inputs = organism.get_inputs(
-                plant_grid=getattr(self, "plant_grid", None),
-                herb_grid=getattr(self, "herb_grid", None),
-                carn_grid=getattr(self, "carn_grid", None),
-            )
-        elif isinstance(organism, Carnivore):
+        if isinstance(organism, Herbivore) or isinstance(organism, Carnivore):
             inputs = organism.get_inputs(
                 plant_grid=getattr(self, "plant_grid", None),
                 herb_grid=getattr(self, "herb_grid", None),
@@ -220,17 +226,26 @@ class EvolutionSimulator:
         if hasattr(organism, "nn"):
             self.draw_nn(organism.nn, inputs=inputs)
 
-        info_text = (
-            f"{'Herbivore' if isinstance(organism, Herbivore) else 'Carnivore'} #{organism.id} (Generation {organism.generation})\n"
-            f"Color: {organism.color}\n"
-            f"Pos: ({int(organism.x)}, {int(organism.y)})\n"
-            f"Rotation: {round(rot_deg, 1)}°\n"
-            f"Speed: {round(organism.speed, 2)}\n"
-            f"Energy: {round(organism.energy, 1)}\n"
-            f"Age: {organism.age}/{organism.lifespan}\n"
-        )
+        is_herb = isinstance(organism, Herbivore)
+        label_value_pairs = [
+            ("", f"{'Herbivore' if is_herb else 'Carnivore'} #{organism.id} (Gen {organism.generation})"),
+            ("Color: ", organism.color),
+            ("Pos: ", f"({int(organism.x)}, {int(organism.y)})"),
+            ("Rotation: ", f"{round(rot_deg, 1)}°"),
+            ("Speed: ", f"{round(organism.speed, 2)}"),
+            ("Energy: ", f"{round(organism.energy, 1)}"),
+            ("Age: ", f"{organism.age}/{organism.lifespan}"),
+        ]
 
-        self.info_label.config(text=info_text)
+        self.info_box.config(state="normal")
+        self.info_box.delete("1.0", "end")
+
+        for label, value in label_value_pairs:
+            self.info_box.insert("end", label)
+            self.info_box.insert("end", value, "bold")
+            self.info_box.insert("end", "\n")
+
+        self.info_box.config(state="disabled")
 
     def draw_nn(self, nn, inputs=None):
         self.nn_canvas.delete("all")
@@ -361,6 +376,12 @@ class EvolutionSimulator:
 
         # Death cause graph (2)
         recent_window = SYS_DEATH_WINDOW_SIZE
+
+        # Predator–prey phase plot (3)
+        if len(carns) > 0 and len(herbs) > 0:
+            self.phase_line.set_data(carns, herbs)
+            self.ax3.set_xlim(0, max(carns) + 5)
+            self.ax3.set_ylim(0, max(herbs) + 5)
 
         perc_starve = []
         perc_eaten = []
@@ -510,7 +531,10 @@ class EvolutionSimulator:
             self.display_info(self.selected_organism)
         else:
             self.selected_organism = None
-            self.info_label.config(text="Select an organism")
+            self.info_box.config(state="normal")
+            self.info_box.delete("1.0", "end")
+            self.info_box.insert("end", "Select an organism")
+            self.info_box.config(state="disabled")
 
         # Rerender graph
         if not any(h.alive for h in self.herbivores) or not any(c.alive for c in self.carnivores) or len(self.plants) == 0:

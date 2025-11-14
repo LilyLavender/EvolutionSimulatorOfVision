@@ -25,7 +25,6 @@
 - **Data**
   - Automatically download info from all graphs once a simulation is over
   - Graph to show average color of plants, herbivores, or carnivores over time
-  - Phase-space plot for herbivore vs carnivore numbers
   - Display the number of children an organism has
   - Option to automatically spectate another organism once one dies
 - **Bugs**
